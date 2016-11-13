@@ -7,8 +7,8 @@ nK = 100 # Jumlah Kromosom dalam satu populasi
 nG = 13 # Jumlah gen dalam satu kromosom
 pJ = [0.1,0.234,0.167,0.1,0.067,0.4,0.25,0.3,0.067,0.067,0.15,0.15,0.15] # panjang masing2 jalur
 cP = 0.8 # crossover probability
-mP = 0.2 # mutation probality
-jG = 200 # jumlah Generasi
+mP = 0.5 # mutation probality
+jG = 300 # jumlah Generasi
 
 # Membuat fungsi-fungsi
 def fungsiObjektif(kromosom):
@@ -84,7 +84,7 @@ def fungsiObjektif(kromosom):
 		elif kromosom[6]==1:
 			panjang += 1000*(1-kromosom[9])
 
-	return panjang
+	return panjang # akhir fungsi
 
 def fitness(kromosom):
 	return 1.0/fungsiObjektif(kromosom)
@@ -103,15 +103,19 @@ def crossover(kromosom1,kromosom2):
 	# one point crossover
 	# point di mulai di gen ke 2
 	anak1, anak2 = [x for x in kromosom1],[x for x in kromosom2]
-	anak1[3:],anak2[3:] = anak2[3:],anak1[3:]
+	anak1[2:],anak2[2:] = anak2[2:],anak1[2:]
 	
 	return anak1, anak2
 
 def mutasi(kromosom):
 	# mutasi menggunakan flip
 	# hanya ada beberapa gen saja yang bermutasi tergantung dari mutation probability nya
-	for genKe in [random.randint(0,nG-1) for x in range(int(mP*nG))]:
-		kromosom[genKe] = 1 - kromosom[genKe]
+	# for genKe in [random.randint(0,nG-1) for x in range(int(mP*nG))]:
+	# 	kromosom[genKe] = 1 - kromosom[genKe]
+
+	for genKe in range(nG):
+		if random.random() < mP :
+			kromosom[genKe] = 1 - kromosom[genKe]
 
 def sortByFitness(population, fitnesses):
 	for i in range(nK-1):
@@ -120,6 +124,52 @@ def sortByFitness(population, fitnesses):
 			fitnesses[j-1],fitnesses[j] = fitnesses[j],fitnesses[j-1]
 			population[j-1],population[j] = population[j],population[j-1]
 			j -= 1
+
+def kromosomToJalur(kromosom):
+	jalur = "S->"
+	if 1 in kromosom[:3]:
+		if 1 == kromosom[0]:
+			jalur += "A->"
+		elif 1 == kromosom[1]:
+			jalur += "B->"
+		elif 1 == kromosom[2]:
+			jalur += "C->"
+	
+	if 1 in kromosom[3:5]:
+		if 1 == kromosom[3]:
+			if 1 == kromosom[1]:
+				jalur += "A->"
+			else:
+				jalur += "B->"
+		elif 1 == kromosom[4]:
+			if 1 == kromosom[1]:
+				jalur += "C->"
+			else:
+				jalur += "B->"
+
+	if 1 in kromosom[5:8]:
+		if 1 == kromosom[5]:
+			jalur += "D->"
+		elif 1 == kromosom[6]:
+			jalur += "E->"
+		elif 1 == kromosom[7]:
+			jalur += "F->"
+
+	if 1 in kromosom[8:10]:
+		if 1 == kromosom[8]:
+			if 1 == kromosom[5]:
+				jalur += "E->"
+			else:
+				jalur += "D->"
+		elif 1 == kromosom[9]:
+			if 1 == kromosom[6]:
+				jalur += "F->"
+			else:
+				jalur += "D->"
+
+	jalur += "G"
+
+	return jalur
 
 # memulai generasi
 populasi = [[random.choice([0,1]) for x in range(nG)] for y in range(nK)] # mengisi populasi dengan kromosom random
@@ -171,3 +221,5 @@ for i in range(jG):
 # sortByFitness(populasi, fitnesses)
 
 print fitness(populasi[0]), populasi[0], fungsiObjektif(populasi[0])
+# hasil yang terbaik adalah
+print kromosomToJalur(populasi[0])
